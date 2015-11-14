@@ -1,4 +1,7 @@
-template SECTION(body:stmt):stmt =
+#template SECTION(body:stmt):stmt =
+#    body
+
+macro SECTION(body: stmt): stmt = 
     body
 
 block:
