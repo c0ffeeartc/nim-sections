@@ -149,7 +149,6 @@ macro Section*(body: untyped): typed =
     result.add remove_sect_tail(sectStmt)
 
 
-# todo: fix alias tests
 template Given*(body: untyped): untyped = Section(body)
 template When* (body: untyped): untyped = Section(body)
 template Then* (body: untyped): untyped = Section(body)

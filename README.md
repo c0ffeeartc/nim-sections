@@ -64,5 +64,5 @@ test "For README.md":
 
 ## ToDo
   - allow optional string argument
-  - current implementation works only when `SECTIONS` are in direct parent/child structures, deep nesting support is planned in future
+  - current implementation works only when `Section` blocks are in direct parent/child structures, deep nesting support is planned in future
 
