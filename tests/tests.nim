@@ -33,7 +33,7 @@ suite "test Section macro":
                 Section:
                     s&="c"
                     echo s
-                check(s == "ac")
+                    check(s == "ac")
             check( s == "ab" or s == "ac")
 
     test "abc, ad branches":

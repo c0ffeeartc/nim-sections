@@ -4,7 +4,6 @@ import macros
 proc convert_branch_to_blocks (body:NimNode): NimNode {.compileTime.}=
     #
     # body must start with Section
-    # body[1] must be stmtList
     #
     # converts
     #
@@ -30,17 +29,21 @@ proc convert_branch_to_blocks (body:NimNode): NimNode {.compileTime.}=
     blockStmt.add newNimNode(nnkStmtList)
     result = blockStmt
 
+    var bodyStmtList: NimNode = nil
+    for c in body:
+        if c.kind == nnkStmtList:
+            bodyStmtList = c
+            break
     #
     # add children, skip sections with index > 0
     #
     var sectionIdx = 0
-    for c in body[1]:
-        case c.kind
-        of nnkCall:
-            if toStrLit(c[0]) == newStrLitNode("Section") or
-               toStrLit(c[0]) == newStrLitNode("Given")   or
-               toStrLit(c[0]) == newStrLitNode("When")    or
-               toStrLit(c[0]) == newStrLitNode("Then"):
+    for c in bodyStmtList:
+        if (c.kind == nnkCall or c.kind == nnkCallStrLit) and
+            (toStrLit(c[0]) == newStrLitNode("Section") or
+             toStrLit(c[0]) == newStrLitNode("Given")   or
+             toStrLit(c[0]) == newStrLitNode("When")    or
+             toStrLit(c[0]) == newStrLitNode("Then") ):
                 if sectionIdx == 0:
                     blockStmt[1].add convert_branch_to_blocks(c)
                 inc sectionIdx
@@ -51,19 +54,24 @@ proc convert_branch_to_blocks (body:NimNode): NimNode {.compileTime.}=
 proc get_left_branch_section_amts_indexes(body:NimNode): seq[(int,int)] =
     #
     # body must start with Section
-    # body[1] must be stmtList
     #
 
     var firstSectIdx:int = -1
     var sectAmt          = 0
     var curIdx           = 0
 
-    for c in body[1]:
-        if c.kind == nnkCall and
-            toStrLit(c[0]) == newStrLitNode("Section") or
-            toStrLit(c[0]) == newStrLitNode("Given")   or
-            toStrLit(c[0]) == newStrLitNode("When")    or
-            toStrLit(c[0]) == newStrLitNode("Then") :
+    var bodyStmtList: NimNode = nil
+    for c in body:
+        if c.kind == nnkStmtList:
+            bodyStmtList = c
+            break
+
+    for c in bodyStmtList:
+        if (c.kind == nnkCall or c.kind == nnkCallStrLit) and
+            (toStrLit(c[0]) == newStrLitNode("Section") or
+             toStrLit(c[0]) == newStrLitNode("Given")   or
+             toStrLit(c[0]) == newStrLitNode("When")    or
+             toStrLit(c[0]) == newStrLitNode("Then") ):
             if sectAmt == 0:
                 firstSectIdx = curIdx
             inc sectAmt
@@ -71,13 +79,12 @@ proc get_left_branch_section_amts_indexes(body:NimNode): seq[(int,int)] =
 
     result = @[(sectAmt, firstSectIdx)]
     if firstSectIdx != -1:
-        result.add get_left_branch_section_amts_indexes(body[1][firstSectIdx])
+        result.add get_left_branch_section_amts_indexes(bodyStmtList[firstSectIdx])
 
 
 proc remove_sect_tail (body:NimNode): NimNode {.compileTime.}=
     #
     # body must start with Section
-    # body[1] must be stmtList
     #
     # converts
     #
