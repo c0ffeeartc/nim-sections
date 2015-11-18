@@ -10,11 +10,11 @@ suite "test SECTION macro":
 
             SECTION:
                 s&="b"
-                require(s == "ab")
+                check(s == "ab")
 
             SECTION:
                 s&="c"
-                require(s == "ac")
+                check(s == "ac")
 
     test "Nested SECTION in middle of abc":
         SECTION:
@@ -24,8 +24,93 @@ suite "test SECTION macro":
             SECTION:
                 SECTION:
                     s&="b"
-                    require(s == "ab")
+                    check(s == "ab")
 
                 SECTION:
                     s&="c"
-                    require(s == "ac")
+                    check(s == "ac")
+
+
+suite "test SECTION aliases : GIVEN, WHEN, THEN":
+    test "For README.md":
+        GIVEN:
+            var s:string = ""
+            s &= "a"
+            WHEN:
+                s &= "b"
+                THEN:
+                    check s=="ab"
+            WHEN:
+                s &= "c"
+                THEN:
+                    check s=="ac"
+
+    test "GIVEN":
+        var s:string = ""
+        GIVEN:
+            s&="a"
+
+            GIVEN:
+                s&="b"
+                check(s == "ab")
+
+                GIVEN:
+                    s&="c"
+                    check(s == "abc")
+            GIVEN:
+                s&="d"
+                check(s == "ad")
+        check (s=="abc" or s=="ad")
+
+    test "WHEN":
+        var s:string = ""
+        WHEN:
+            s&="a"
+
+            WHEN:
+                s&="b"
+                check(s == "ab")
+
+                WHEN:
+                    s&="c"
+                    check(s == "abc")
+            WHEN:
+                s&="d"
+                check(s == "ad")
+        check (s=="abc" or s=="ad")
+
+    test "THEN":
+        var s:string = ""
+        THEN:
+            s&="a"
+
+            THEN:
+                s&="b"
+                check(s == "ab")
+
+                THEN:
+                    s&="c"
+                    check(s == "abc")
+            THEN:
+                s&="d"
+                check(s == "ad")
+        check (s=="abc" or s=="ad")
+
+    test "GIVEN, WHEN, THEN":
+        var s:string = ""
+        GIVEN:
+            s&="a"
+
+            WHEN:
+                s&="b"
+                check(s == "ab")
+
+                THEN:
+                    s&="c"
+                    check(s == "abc")
+
+            WHEN:
+                s&="d"
+                check(s == "ad")
+        check (s=="abc" or s=="ad")
+

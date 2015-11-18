@@ -142,6 +142,12 @@ macro SECTION*(body: untyped): typed =
     result.add REMOVE_SECT_TAIL(sectStmt)
 
 
+# todo: fix alias tests
+template GIVEN*(body: untyped): untyped = discard
+template WHEN* (body: untyped): untyped = discard
+template THEN* (body: untyped): untyped = discard
+
+
 when isMainModule:
     SECTION:
         var s:string = ""
