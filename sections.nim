@@ -1,20 +1,20 @@
 import macros
 
 
-proc CONVERT_BRANCH_TO_BLOCKS (body:NimNode): NimNode {.compileTime.}=
+proc convert_branch_to_blocks (body:NimNode): NimNode {.compileTime.}=
     #
-    # body must start with SECTION
+    # body must start with Section
     # body[1] must be stmtList
     #
     # converts
     #
-    #   SECTION:
+    #   Section:
     #       echo "A"
     #
-    #       SECTION:
+    #       Section:
     #           echo "B"
     #
-    #       SECTION:
+    #       Section:
     #           echo "C"
     #
     # to
@@ -37,20 +37,20 @@ proc CONVERT_BRANCH_TO_BLOCKS (body:NimNode): NimNode {.compileTime.}=
     for c in body[1]:
         case c.kind
         of nnkCall:
-            if toStrLit(c[0]) == newStrLitNode("SECTION") or
-               toStrLit(c[0]) == newStrLitNode("GIVEN")   or
-               toStrLit(c[0]) == newStrLitNode("WHEN")    or
-               toStrLit(c[0]) == newStrLitNode("THEN"):
+            if toStrLit(c[0]) == newStrLitNode("Section") or
+               toStrLit(c[0]) == newStrLitNode("Given")   or
+               toStrLit(c[0]) == newStrLitNode("When")    or
+               toStrLit(c[0]) == newStrLitNode("Then"):
                 if sectionIdx == 0:
-                    blockStmt[1].add CONVERT_BRANCH_TO_BLOCKS(c)
+                    blockStmt[1].add convert_branch_to_blocks(c)
                 inc sectionIdx
         else:
             blockStmt[1].add(c)
 
 
-proc GET_LEFT_BRANCH_SECTION_AMTS_INDEXES(body:NimNode): seq[(int,int)] =
+proc get_left_branch_section_amts_indexes(body:NimNode): seq[(int,int)] =
     #
-    # body must start with SECTION
+    # body must start with Section
     # body[1] must be stmtList
     #
 
@@ -60,10 +60,10 @@ proc GET_LEFT_BRANCH_SECTION_AMTS_INDEXES(body:NimNode): seq[(int,int)] =
 
     for c in body[1]:
         if c.kind == nnkCall and
-            toStrLit(c[0]) == newStrLitNode("SECTION") or
-            toStrLit(c[0]) == newStrLitNode("GIVEN")   or
-            toStrLit(c[0]) == newStrLitNode("WHEN")    or
-            toStrLit(c[0]) == newStrLitNode("THEN") :
+            toStrLit(c[0]) == newStrLitNode("Section") or
+            toStrLit(c[0]) == newStrLitNode("Given")   or
+            toStrLit(c[0]) == newStrLitNode("When")    or
+            toStrLit(c[0]) == newStrLitNode("Then") :
             if sectAmt == 0:
                 firstSectIdx = curIdx
             inc sectAmt
@@ -71,39 +71,39 @@ proc GET_LEFT_BRANCH_SECTION_AMTS_INDEXES(body:NimNode): seq[(int,int)] =
 
     result = @[(sectAmt, firstSectIdx)]
     if firstSectIdx != -1:
-        result.add GET_LEFT_BRANCH_SECTION_AMTS_INDEXES(body[1][firstSectIdx])
+        result.add get_left_branch_section_amts_indexes(body[1][firstSectIdx])
 
 
-proc REMOVE_SECT_TAIL (body:NimNode): NimNode {.compileTime.}=
+proc remove_sect_tail (body:NimNode): NimNode {.compileTime.}=
     #
-    # body must start with SECTION
+    # body must start with Section
     # body[1] must be stmtList
     #
     # converts
     #
-    #   SECTION:
+    #   Section:
     #       echo "A"
     #
-    #       SECTION:
+    #       Section:
     #           echo "B"
     #
-    #           SECTION:
+    #           Section:
     #               echo "C"
     #
-    #       SECTION:
+    #       Section:
     #           echo "D"
     #
     # to
     #
-    #   SECTION:
+    #   Section:
     #       echo "A"
     #
-    #       SECTION:
+    #       Section:
     #           echo "D"
     #
     result = newNimNode(nnkStmtList)
 
-    var amtsIdxs = GET_LEFT_BRANCH_SECTION_AMTS_INDEXES(body)
+    var amtsIdxs = get_left_branch_section_amts_indexes(body)
 
     if amtsIdxs.len == 0:
         return
@@ -122,7 +122,7 @@ proc REMOVE_SECT_TAIL (body:NimNode): NimNode {.compileTime.}=
         return
 
     #
-    # remove SECTION branch
+    # remove Section branch
     #
     lastI = amtsIdxs.len - 1
     var curParent = body
@@ -132,40 +132,40 @@ proc REMOVE_SECT_TAIL (body:NimNode): NimNode {.compileTime.}=
     result = body
 
 
-macro SECTION*(body: untyped): typed =
+macro Section*(body: untyped): typed =
     result = newNimNode(nnkStmtList)
 
     #
-    #  restore SECTION command which was removed by SECTION macro call
+    #  restore Section command which was removed by Section macro call
     #
     var sectStmt =  newNimNode (nnkCall)
-    sectStmt.add ident("SECTION")
+    sectStmt.add ident("Section")
     sectStmt.add body
 
     #
     #
     #
-    result.add CONVERT_BRANCH_TO_BLOCKS(sectStmt)
-    result.add REMOVE_SECT_TAIL(sectStmt)
+    result.add convert_branch_to_blocks(sectStmt)
+    result.add remove_sect_tail(sectStmt)
 
 
 # todo: fix alias tests
-template GIVEN*(body: untyped): untyped = SECTION(body)
-template WHEN* (body: untyped): untyped = SECTION(body)
-template THEN* (body: untyped): untyped = SECTION(body)
+template Given*(body: untyped): untyped = Section(body)
+template When* (body: untyped): untyped = Section(body)
+template Then* (body: untyped): untyped = Section(body)
 
 
 when isMainModule:
-    SECTION:
+    Section:
         var s:string = ""
         echo "a"
         s&="a"
 
-        SECTION:
+        Section:
             echo "b"
             s&="b"
 
-        SECTION:
+        Section:
             echo "c"
             s&="c"
         echo s
