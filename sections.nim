@@ -118,10 +118,10 @@ proc REMOVE_SECT_TAIL (body:NimNode): NimNode {.compileTime.}=
     # remove SECTION branch
     #
     lastI = amtsIdxs.len - 1
-    var curParent = body[1]
+    var curParent = body
     for i in 0..<lastI:
-        curParent = body[amtsIdxs[i][1]]
-    curParent.del(amtsIdxs[lastI][1])
+        curParent = curParent[1][amtsIdxs[i][1]]
+    curParent[1].del(amtsIdxs[lastI][1])
     result = body
 
 
