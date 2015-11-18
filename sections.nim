@@ -37,7 +37,10 @@ proc CONVERT_BRANCH_TO_BLOCKS (body:NimNode): NimNode {.compileTime.}=
     for c in body[1]:
         case c.kind
         of nnkCall:
-            if toStrLit(c[0]) == newStrLitNode("SECTION"):
+            if toStrLit(c[0]) == newStrLitNode("SECTION") or
+               toStrLit(c[0]) == newStrLitNode("GIVEN")   or
+               toStrLit(c[0]) == newStrLitNode("WHEN")    or
+               toStrLit(c[0]) == newStrLitNode("THEN"):
                 if sectionIdx == 0:
                     blockStmt[1].add CONVERT_BRANCH_TO_BLOCKS(c)
                 inc sectionIdx
@@ -56,7 +59,11 @@ proc GET_LEFT_BRANCH_SECTION_AMTS_INDEXES(body:NimNode): seq[(int,int)] =
     var curIdx           = 0
 
     for c in body[1]:
-        if c.kind == nnkCall and toStrLit(c[0]) == newStrLitNode("SECTION"):
+        if c.kind == nnkCall and
+            toStrLit(c[0]) == newStrLitNode("SECTION") or
+            toStrLit(c[0]) == newStrLitNode("GIVEN")   or
+            toStrLit(c[0]) == newStrLitNode("WHEN")    or
+            toStrLit(c[0]) == newStrLitNode("THEN") :
             if sectAmt == 0:
                 firstSectIdx = curIdx
             inc sectAmt
@@ -143,9 +150,9 @@ macro SECTION*(body: untyped): typed =
 
 
 # todo: fix alias tests
-template GIVEN*(body: untyped): untyped = discard
-template WHEN* (body: untyped): untyped = discard
-template THEN* (body: untyped): untyped = discard
+template GIVEN*(body: untyped): untyped = SECTION(body)
+template WHEN* (body: untyped): untyped = SECTION(body)
+template THEN* (body: untyped): untyped = SECTION(body)
 
 
 when isMainModule:

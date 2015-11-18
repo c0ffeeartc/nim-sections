@@ -3,7 +3,40 @@ import unittest
 
 
 suite "test SECTION macro":
-    test "abc => ab ac":
+    test "abc => ab, ac":
+        SECTION:
+            var s:string = ""
+            s&="a"
+
+            SECTION:
+                s&="b"
+                echo s
+                check(s == "ab")
+
+            SECTION:
+                s&="c"
+                echo s
+                check(s == "ac")
+            check( s == "ab" or s == "ac")
+
+    test "SECTION in middle of ab, ac":
+        SECTION:
+            var s:string = ""
+            s&="a"
+
+            SECTION:
+                SECTION:
+                    s&="b"
+                    echo s
+                    check(s == "ab")
+
+                SECTION:
+                    s&="c"
+                    echo s
+                check(s == "ac")
+            check( s == "ab" or s == "ac")
+
+    test "abc, ad branches":
         SECTION:
             var s:string = ""
             s&="a"
@@ -12,24 +45,15 @@ suite "test SECTION macro":
                 s&="b"
                 check(s == "ab")
 
-            SECTION:
-                s&="c"
-                check(s == "ac")
-
-    test "Nested SECTION in middle of abc":
-        SECTION:
-            var s:string = ""
-            s&="a"
-
-            SECTION:
-                SECTION:
-                    s&="b"
-                    check(s == "ab")
-
                 SECTION:
                     s&="c"
-                    check(s == "ac")
-
+                    echo s
+                    check(s == "abc")
+            SECTION:
+                s&="d"
+                echo s
+                check(s == "ad")
+            check (s=="abc" or s=="ad")
 
 suite "test SECTION aliases : GIVEN, WHEN, THEN":
     test "For README.md":
@@ -39,15 +63,17 @@ suite "test SECTION aliases : GIVEN, WHEN, THEN":
             WHEN:
                 s &= "b"
                 THEN:
+                    echo s
                     check s=="ab"
             WHEN:
                 s &= "c"
                 THEN:
+                    echo s
                     check s=="ac"
 
     test "GIVEN":
-        var s:string = ""
         GIVEN:
+            var s:string = ""
             s&="a"
 
             GIVEN:
@@ -56,15 +82,17 @@ suite "test SECTION aliases : GIVEN, WHEN, THEN":
 
                 GIVEN:
                     s&="c"
+                    echo s
                     check(s == "abc")
             GIVEN:
                 s&="d"
+                echo s
                 check(s == "ad")
-        check (s=="abc" or s=="ad")
+            check (s=="abc" or s=="ad")
 
     test "WHEN":
-        var s:string = ""
         WHEN:
+            var s:string = ""
             s&="a"
 
             WHEN:
@@ -73,15 +101,17 @@ suite "test SECTION aliases : GIVEN, WHEN, THEN":
 
                 WHEN:
                     s&="c"
+                    echo s
                     check(s == "abc")
             WHEN:
                 s&="d"
+                echo s
                 check(s == "ad")
-        check (s=="abc" or s=="ad")
+            check (s=="abc" or s=="ad")
 
     test "THEN":
-        var s:string = ""
         THEN:
+            var s:string = ""
             s&="a"
 
             THEN:
@@ -90,15 +120,17 @@ suite "test SECTION aliases : GIVEN, WHEN, THEN":
 
                 THEN:
                     s&="c"
+                    echo s
                     check(s == "abc")
             THEN:
                 s&="d"
+                echo s
                 check(s == "ad")
-        check (s=="abc" or s=="ad")
+            check (s=="abc" or s=="ad")
 
     test "GIVEN, WHEN, THEN":
-        var s:string = ""
         GIVEN:
+            var s:string = ""
             s&="a"
 
             WHEN:
@@ -107,10 +139,12 @@ suite "test SECTION aliases : GIVEN, WHEN, THEN":
 
                 THEN:
                     s&="c"
+                    echo s
                     check(s == "abc")
 
             WHEN:
                 s&="d"
+                echo s
                 check(s == "ad")
-        check (s=="abc" or s=="ad")
+            check (s=="abc" or s=="ad")
 

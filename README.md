@@ -1,7 +1,7 @@
 # nim-sections
 
 
-Provides `SECTION` macro. Nested `SECTION` blocks are converted into separate local branches of execution.
+Provides `SECTION` macro and its `GIVEN`, `WHEN`, `THEN` aliases. Nested `SECTION` blocks are converted into separate local branches of execution.
 Inspired by [C++ Catch Test Framework sections](https://github.com/philsquared/Catch/blob/master/docs/tutorial.md#test-cases-and-sections)
 
 
@@ -37,6 +37,26 @@ block:
     echo s
 ```
 
+BDD style example
+```
+import unittest
+import sections
+
+test "For README.md":
+    GIVEN:
+        var s:string = ""
+        s &= "a"
+        WHEN:
+            s &= "b"
+            THEN:
+                echo s
+                check s=="ab"
+        WHEN:
+            s &= "c"
+            THEN:
+                echo s
+                check s=="ac"
+```
 ## Tested with
 
   - nim v 0.12
