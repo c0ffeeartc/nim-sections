@@ -63,7 +63,6 @@ test "For README.md":
 
 
 ## ToDo
-  - provide `GIVEN`, `WHEN`, `THEN` aliases
   - allow optional string argument
   - current implementation works only when `SECTIONS` are in direct parent/child structures, deep nesting support is planned in future
 
