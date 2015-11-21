@@ -5,6 +5,10 @@ Provides `Section` macro and its `Given`, `When`, `Then` aliases. Nested `Sectio
 Inspired by [C++ Catch Test Framework sections](https://github.com/philsquared/Catch/blob/master/docs/tutorial.md#test-cases-and-sections)
 
 
+## Installation
+
+`nimble install sections`
+
 ## Example
 
 
