@@ -1,4 +1,6 @@
 import macros
+import sequtils
+
 
 proc is_section (n:NimNode): bool =
     result = (n.kind == nnkCall)  and
@@ -6,6 +8,48 @@ proc is_section (n:NimNode): bool =
          toStrLit(n[0]) == newStrLitNode("Given")   or
          toStrLit(n[0]) == newStrLitNode("When")    or
          toStrLit(n[0]) == newStrLitNode("Then") )
+
+
+type
+    SectionTree = seq[seq[InfoNode]]                    # seq of section branch levels, starting from root
+    InfoNode    = tuple [parent:NimNode, sectIndex:int] # root section index -1 and parent is section itself
+
+
+proc get_child_level(stmtList:NimNode): seq[InfoNode] =
+    result = @[]
+    var i = 0
+    for c in stmtList:
+        if is_section(c):
+            var info:InfoNode = (parent: stmtList, sectIndex:i)
+            result.add info
+        else:
+            for child in c:
+                if child.kind == nnkStmtList:
+                    result = result.concat get_child_level(c)
+                    break
+        inc i
+
+
+proc get_next_level(level:seq[InfoNode]): seq[InfoNode] =
+    result = @[]
+    for info in level:
+        var sect = if info.sectIndex != -1 : info.parent[info.sectIndex] else: info.parent
+        for c in sect:
+            if c.kind == nnkStmtList:
+                result = result.concat get_child_level(c)
+                break
+
+
+proc get_section_tree(sectNode:NimNode): SectionTree =
+    var root:InfoNode = (parent: sectNode, sectIndex: -1)
+    var rootLevel = @[root]
+    result = @[rootLevel]
+
+    var levelSections = get_next_level(rootLevel)
+
+    while levelSections.len != 0:
+        result.add levelSections
+        levelSections =  get_next_level(levelSections)
 
 
 proc convert_branch_to_blocks (body:NimNode): NimNode {.compileTime.}=

@@ -148,3 +148,22 @@ suite "test Section aliases : Given, When, Then":
                 check(s == "ad")
             check (s=="abc" or s=="ad")
 
+
+suite "test deep Sections":
+    test "block":
+        Section:
+            var s:string = ""
+            s&="a"
+
+            block:
+                Section:
+                    s&="b"
+                    echo s
+                    check(s == "ab")
+
+                Section:
+                    s&="c"
+                    echo s
+                    check(s == "ac")
+            check( s == "ab" or s == "ac")
+
