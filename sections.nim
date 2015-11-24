@@ -1,5 +1,12 @@
 import macros
 
+proc is_section (n:NimNode): bool =
+    result = (n.kind == nnkCall)  and
+        (toStrLit(n[0]) == newStrLitNode("Section") or
+         toStrLit(n[0]) == newStrLitNode("Given")   or
+         toStrLit(n[0]) == newStrLitNode("When")    or
+         toStrLit(n[0]) == newStrLitNode("Then") )
+
 
 proc convert_branch_to_blocks (body:NimNode): NimNode {.compileTime.}=
     #
@@ -39,11 +46,7 @@ proc convert_branch_to_blocks (body:NimNode): NimNode {.compileTime.}=
     #
     var sectionIdx = 0
     for c in bodyStmtList:
-        if (c.kind == nnkCall or c.kind == nnkCallStrLit) and
-            (toStrLit(c[0]) == newStrLitNode("Section") or
-             toStrLit(c[0]) == newStrLitNode("Given")   or
-             toStrLit(c[0]) == newStrLitNode("When")    or
-             toStrLit(c[0]) == newStrLitNode("Then") ):
+        if is_section(c):
                 if sectionIdx == 0:
                     blockStmt[1].add convert_branch_to_blocks(c)
                 inc sectionIdx
@@ -67,11 +70,7 @@ proc get_left_branch_section_amts_indexes(body:NimNode): seq[(int,int)] =
             break
 
     for c in bodyStmtList:
-        if (c.kind == nnkCall or c.kind == nnkCallStrLit) and
-            (toStrLit(c[0]) == newStrLitNode("Section") or
-             toStrLit(c[0]) == newStrLitNode("Given")   or
-             toStrLit(c[0]) == newStrLitNode("When")    or
-             toStrLit(c[0]) == newStrLitNode("Then") ):
+        if is_section(c):
             if sectAmt == 0:
                 firstSectIdx = curIdx
             inc sectAmt
